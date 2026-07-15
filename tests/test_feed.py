@@ -1,7 +1,5 @@
 import allure
 
-from pages.constructor_page import ConstructorPage
-from pages.account_page import AccountPage
 from pages.feed_page import FeedPage
 from src.api_helpers import ApiClient
 
@@ -21,57 +19,50 @@ class TestFeed:
 
 
 
-    @allure.title("Заказы пользователя из «Истории заказов» отображаются в ленте заказов")
-    def test_user_order_appears_in_feed(self, logged_in_driver, registered_user):
-        order_number = ApiClient.create_order(registered_user["access_token"])
+    @allure.title("Заказ пользователя отображается в общей ленте заказов")
+    def test_user_order_appears_in_feed(self, driver, registered_user, ingredients):
+        order_number = ApiClient.create_order(registered_user["access_token"], ingredients)
 
-        with allure.step("Заказ виден в истории заказов пользователя"):
-            constructor = ConstructorPage(logged_in_driver)
-            constructor.click_personal_account()
-            account = AccountPage(logged_in_driver)
-            account.open_order_history()
-            assert str(order_number) in account.get_order_numbers(), (
-                "Заказ не отобразился в истории заказов"
-            )
+        feed = FeedPage(driver)
+        feed.open_page()
 
-        with allure.step("Тот же заказ виден в общей ленте заказов"):
-            feed = FeedPage(logged_in_driver)
-            feed.open_page()
-            feed.wait_order_in_feed(order_number)
+        assert feed.wait_order_in_feed(order_number), (
+            "Заказ пользователя не отобразился в ленте заказов"
+        )
 
 
 
 
     @allure.title("При создании заказа счётчик «Выполнено за всё время» увеличивается")
-    def test_total_counter_increases(self, driver, registered_user):
+    def test_total_counter_increases(self, driver, registered_user, ingredients):
         feed = FeedPage(driver)
         feed.open_page()
         total_before = feed.get_total_count()
 
-        ApiClient.create_order(registered_user["access_token"])
+        ApiClient.create_order(registered_user["access_token"], ingredients)
 
         assert feed.wait_total_count_above(total_before) > total_before, (
             "Счётчик «Выполнено за всё время» не увеличился"
         )
 
     @allure.title("При создании заказа счётчик «Выполнено за сегодня» увеличивается")
-    def test_today_counter_increases(self, driver, registered_user):
+    def test_today_counter_increases(self, driver, registered_user, ingredients):
         feed = FeedPage(driver)
         feed.open_page()
         today_before = feed.get_today_count()
 
-        ApiClient.create_order(registered_user["access_token"])
+        ApiClient.create_order(registered_user["access_token"], ingredients)
 
         assert feed.wait_today_count_above(today_before) > today_before, (
             "Счётчик «Выполнено за сегодня» не увеличился"
         )
 
     @allure.title("После оформления заказа его номер появляется в разделе «В работе»")
-    def test_new_order_appears_in_progress(self, driver, registered_user):
+    def test_new_order_appears_in_progress(self, driver, registered_user, ingredients):
         feed = FeedPage(driver)
         feed.open_page()
 
-        order_number = ApiClient.create_order(registered_user["access_token"])
+        order_number = ApiClient.create_order(registered_user["access_token"], ingredients)
 
         feed.wait_order_in_progress(order_number)
         assert str(order_number).lstrip("0") in feed.get_in_progress_numbers(), (

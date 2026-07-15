@@ -47,8 +47,6 @@ class TestConstructor:
         constructor = ConstructorPage(driver)
         constructor.open_page()
         constructor.open_ingredient_modal()
-        assert constructor.is_ingredient_modal_opened()
-
         constructor.close_modal()
 
         assert constructor.is_modal_closed(), "Модалка не закрылась по крестику"

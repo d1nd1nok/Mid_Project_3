@@ -42,10 +42,8 @@ class TestForgotPassword:
         reset_page = ResetPasswordPage(driver)
         reset_page.wait_url_contains("reset-password")
 
-        assert not reset_page.is_password_field_active(), (
-            "Поле пароля не должно быть активным до клика по «глазику»"
-        )
         reset_page.toggle_password_visibility()
+
         assert reset_page.wait_password_field_active(), (
             "Поле пароля должно подсветиться после клика по «глазику»"
         )

@@ -7,6 +7,7 @@ from src.data import User
 from src.api_helpers import ApiClient
 from pages.login_page import LoginPage
 from pages.constructor_page import ConstructorPage
+from locators.constructor_page_locators import ConstructorPageLocators
 
 
 def pytest_addoption(parser):
@@ -67,9 +68,14 @@ def registered_user():
 
 
 @pytest.fixture
+def ingredients():
+    return ApiClient.get_ingredient_hashes()
+
+
+@pytest.fixture
 def logged_in_driver(driver, registered_user):
     login_page = LoginPage(driver)
     login_page.open_page()
     login_page.login(registered_user["email"], registered_user["password"])
-    ConstructorPage(driver).wait_visible(ConstructorPage.PAGE_TITLE)
+    ConstructorPage(driver).wait_visible(ConstructorPageLocators.PAGE_TITLE)
     return driver

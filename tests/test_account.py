@@ -21,8 +21,8 @@ class TestAccount:
         assert account.is_profile_opened(), "Не открылся личный кабинет"
 
     @allure.title("Переход в раздел «История заказов»")
-    def test_open_order_history(self, logged_in_driver, registered_user):
-        ApiClient.create_order(registered_user["access_token"])
+    def test_open_order_history(self, logged_in_driver, registered_user, ingredients):
+        ApiClient.create_order(registered_user["access_token"], ingredients)
 
         constructor = ConstructorPage(logged_in_driver)
         constructor.click_personal_account()
